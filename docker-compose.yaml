@@ -3,8 +3,8 @@ version: '2.1'
 services:
   mysql-master:
     image: bitnami/mysql:5.7.33
-    # ports:
-    #   - '3601:3306'                                 # enable port to test from master
+    ports:
+      - '3601:3306'                                 # enable port to test from master
     # volumes:
     #   - './master_data:/bitnami/mysql/data'       # enable volumes to persist data
     environment:
@@ -24,8 +24,8 @@ services:
 
   mysql-slave:
     image: bitnami/mysql:5.7.33
-    # ports:
-    #   - '3602:3306'                                   # enable port to test from slave
+    ports:
+      - '3602:3306'                                   # enable port to test from slave
     # volumes:
     #   - './slave_data:/bitnami/mysql/data'          # enable volumes to persist data
     depends_on:
@@ -47,7 +47,7 @@ services:
       - net-replication
 
   proxysql:
-    image: proxysql/proxysql:2.1.1
+    image: proxysql/proxysql:2.0.12
     ports:
       - '16032:6032'
       - '16033:6033'
