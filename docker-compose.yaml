@@ -45,6 +45,29 @@ services:
       retries: 6
     networks:
       - net-replication
+  mysql-slave-2:
+      image: bitnami/mysql:5.7.33
+      ports:
+        - '3603:3306'                                   # enable port to test from slave
+      # volumes:
+      #   - './slave_data:/bitnami/mysql/data'          # enable volumes to persist data
+      depends_on:
+        - mysql-master
+      environment:
+        - MYSQL_REPLICATION_MODE=slave
+        - MYSQL_REPLICATION_USER=repl_user
+        - MYSQL_REPLICATION_PASSWORD=my-repl-password
+        - MYSQL_MASTER_HOST=mysql-master
+        - MYSQL_MASTER_PORT_NUMBER=3306
+        - MYSQL_MASTER_ROOT_PASSWORD=my-secret-pw
+        - ALLOW_EMPTY_PASSWORD=no
+      healthcheck:
+        test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
+        interval: 15s
+        timeout: 5s
+        retries: 6
+      networks:
+        - net-replication
 
   proxysql:
     image: proxysql/proxysql:2.0.12
