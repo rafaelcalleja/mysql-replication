@@ -1,5 +1,11 @@
 PASSWORD ?= my-secret-pw
 
+up:
+	@docker-compose up -d
+
+build:
+	@docker-compose up -d --force-recreate
+
 slave1: slave
 slave:
 	MYSQL_PWD=$(PASSWORD) mysql -uroot -P3602 -h127.0.0.1
@@ -44,9 +50,19 @@ servers:
 	 @echo "slave1=$(shell docker ps -aqf "name=mysql-replication_mysql-slave_1")"
 	 @echo "slave2=$(shell docker ps -aqf "name=mysql-replication_mysql-slave-2_1")"
 
+proxy-balancer: servers
+	MYSQL_PWD=$(PASSWORD) mysql -uroot -P16033 -h127.0.0.1 -e "SELECT @@hostname"
+
 proxy-lock: servers
 	@MYSQL_PWD=$(PASSWORD) mysql -uroot -P16033 -h127.0.0.1 -e "SELECT *, (SELECT @@hostname), (SELECT SLEEP(1)) from test.t FOR UPDATE"
 
 proxy-lock-no-multiplex: servers
-	@MYSQL_PWD=$(PASSWORD) mysql -uroot -P16033 -h127.0.0.1 -e "SET FOREIGN_KEY_CHECKS=0; SELECT *, (SELECT @@hostname), (SELECT SLEEP(1)) from test.t FOR UPDATE"
+	@MYSQL_PWD=$(PASSWORD) mysql -uroot -P16033 -h127.0.0.1 -e "SET FOREIGN_KEY_CHECKS=0; SELECT SQL_CALC_FOUND_ROWS *, (SELECT @@hostname), (SELECT SLEEP(1)) from test.t FOR UPDATE"
+
+proxy-restart:
+	@docker-compose stop proxysql
+	@docker-compose up -d --force-recreate --no-deps proxysql
+
+destroy:
+	@docker-compose down -v --rmi local
 
