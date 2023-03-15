@@ -13,7 +13,8 @@ Run `docker-compose.yaml` and use the following credential to connect to ProxySQ
 - **password:** my-secret-pw
 
 https://jfg-mysql.blogspot.com/2022/05/triggering-replication-lag-for-testing-a-script.html
-create database test
+create database test;
+use test;
 CREATE TABLE t(id INT AUTO_INCREMENT PRIMARY KEY, v DOUBLE, d DATETIME);
 INSERT INTO t (v, d) SELECT 1, NOW() FROM information_schema.INNODB_METRICS LIMIT 10;
 
